@@ -1,8 +1,7 @@
 import ell
 from typing import List
 
-ell.init(verbose=True)
-
+ell.init(store='./logdir', autocommit=True, verbose=True)
 
 @ell.simple(model="gpt-4o-mini", temperature=1.0)
 def generate_story_ideas(about : str):
@@ -33,4 +32,4 @@ def write_a_really_good_story(about : str):
 
     return f"Make a final revision of this story in your voice: {best_draft}."
 
-story = write_a_really_good_story("Doc Holliday")
+story = write_a_really_good_story("A boy named Sam from Marietta, Georgia who is a time traveler")
