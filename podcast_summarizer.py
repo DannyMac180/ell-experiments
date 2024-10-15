@@ -1,20 +1,13 @@
-from llama_index.readers.obsidian import ObsidianReader
+from langchain.document_loaders import ObsidianLoader
 from datetime import datetime, timedelta
 
-# Initialize the ObsidianReader with the specified directory
-obsidian_reader = ObsidianReader(
+# Initialize the ObsidianLoader with the specified directory
+obsidian_loader = ObsidianLoader(
     "/Users/danielmcateer/Library/Mobile Documents/iCloud~md~obsidian/Documents/Ideaverse/Readwise/Podcasts"
 )
 
 # Load the documents from the Obsidian vault
-documents = obsidian_reader.load_data()
-# Print the metadata of the loaded Obsidian documents
-print("Metadata of loaded Obsidian documents:")
-for i, doc in enumerate(documents, 1):
-    print(f"\nDocument {i}:")
-    for key, value in doc.metadata.items():
-        print(f"  {key}: {value}")
-
+documents = obsidian_loader.load()
 
 # Get the current date
 current_date = datetime.now().date()
@@ -25,14 +18,15 @@ seven_days_ago = current_date - timedelta(days=7)
 # Filter documents updated within the last 7 days
 recent_documents = []
 for doc in documents:
-    if 'Updated' in doc.metadata:
+    if 'last_modified' in doc.metadata:
         try:
-            updated_date = datetime.strptime(doc.metadata['Updated'], '%Y-%m-%d').date()
+            updated_date = datetime.fromtimestamp(doc.metadata['last_modified']).date()
             if updated_date > seven_days_ago:
                 recent_documents.append(doc)
-        except ValueError:
+        except (ValueError, TypeError):
             print(f"Invalid date format for document: {doc.metadata}")
     else:
-        print(f"'Updated' field missing for document: {doc.metadata}")
+        print(f"'last_modified' field missing for document: {doc.metadata}")
 
 print(f"Number of documents updated in the last 7 days: {len(recent_documents)}")
+print(recent_documents[0].page_content)
