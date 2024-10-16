@@ -34,38 +34,36 @@ for doc in documents:
 print(f"Number of documents updated in the last 7 days: {len(recent_documents)}")
 
 @ell.simple(model="gpt-4o")
-def extract_metadata_and_summarize(notes: list) -> dict:
+def extract_summary(notes: str) -> str:
     """
-    Extract podcast metadata and summarize the notes.
+    Summarize the podcast notes.
     The notes are in the format of a podcast transcript with metadata at the top.
     The summaries should especially focus on the highlights and key ideas and insights.
-    Return a dictionary containing the title, link, and summary.
+    Return the summary as a string.
     """
-    
-    # Extract metadata from the notes
-    metadata = {}
-    for line in notes.split('\n'):
-        if line.startswith('Title:'):
-            metadata['title'] = line.split(':')[1].strip()
-        elif line.startswith('Source URL:'):
-            metadata['source_url'] = line.split(':')[1].strip()
-    
-    summary = {f"Summarize the podcast notes here: {notes}"}
-    
-    # Your logic to extract metadata and summarize goes here
-    # For now, we'll return a placeholder
-    return {
-        "title": metadata['title'],
-        "source_url": metadata['source_url'],
-        "summary": summary
-    }
+    # Your logic to summarize goes here
+    return f"Summarize the podcast notes here: {notes}"
 
 summaries = []
 
 for doc in recent_documents:
     notes = doc.page_content
-    result = extract_metadata_and_summarize(notes)
-    summaries.append(f"Title: {result['title']}\nSource URL: {result['source_url']}\nSummary:\n{result['summary']}\n\n")
+    metadata = {}
+    for line in notes.split('\n'):
+        if line.startswith('Title:'):
+            metadata['title'] = line.split(':', 1)[1].strip()
+        elif line.startswith('Source URL:'):
+            metadata['source_url'] = line.split(':', 1)[1].strip()
+        elif line.startswith('Authors:'):
+            metadata['authors'] = line.split(':', 1)[1].strip()
+    
+    summary = extract_summary(notes)
+    summaries.append(
+        f"Title: {metadata['title']}\n"
+        f"Source URL: {metadata['source_url']}\n"
+        f"Summary:\n{summary}\n\n"
+        f"Authors: {metadata['authors']}\n\n"
+    )
 
 with open('summarized_podcasts.txt', 'w') as f:
     f.writelines(summaries)
